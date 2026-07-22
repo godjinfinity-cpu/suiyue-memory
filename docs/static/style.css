@@ -651,6 +651,20 @@ dd {
   padding: 32px;
 }
 
+.card-tools {
+  width: min(900px, 100%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 auto 16px;
+}
+
+.card-tools .button {
+  border: 1px solid var(--line);
+  cursor: pointer;
+  font: inherit;
+}
+
 .print-card {
   width: min(900px, 100%);
   padding: 34px;
@@ -794,8 +808,14 @@ dd {
 }
 
 @media print {
+  @page {
+    size: A6 landscape;
+    margin: 0;
+  }
+
   .site-header,
-  .site-footer {
+  .site-footer,
+  .card-tools {
     display: none;
   }
 
