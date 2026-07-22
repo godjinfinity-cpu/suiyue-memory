@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ item.title }}｜{{ site_name }}</title>
+  <meta name="description" content="{{ item.summary }}">
+  <link rel="stylesheet" href="{{ static_url }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand-mark" href="{{ base_url }}/" aria-label="{{ site_name }}首页">
+      <span class="brand-icon">岁</span>
+      <span>
+        <strong>{{ site_name }}</strong>
+        <small>家庭数字记忆档案</small>
+      </span>
+    </a>
+    <nav class="top-nav" aria-label="主导航">
+      <a href="{{ base_url }}/#archive">记忆档案</a>
+      <a href="{{ item.card_url }}">故事卡</a>
+      <a href="#qr">二维码</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero family-hero" style="--hero-image: url('{{ item.photo_url }}');">
+      <div class="hero-content">
+        <p class="eyebrow">{{ item.status }} · {{ item.visibility_label }}</p>
+        <h1>{{ item.title }}</h1>
+        <p class="hero-copy">{{ item.quote }}</p>
+      </div>
+    </section>
+
+    <section class="story-layout">
+      <article class="story-panel">
+        <div class="meta-row">
+          <span>{{ item.object_name }}</span>
+          <span>{{ item.year }}</span>
+          <span>{{ item.place }}</span>
+        </div>
+        <h2>这件物品的故事</h2>
+        <p class="story-text">{{ item.story }}</p>
+        <blockquote>{{ item.quote }}</blockquote>
+      </article>
+
+      <aside class="detail-panel" aria-label="档案信息">
+        <h2>档案信息</h2>
+        <dl>
+          <div>
+            <dt>讲述人</dt>
+            <dd>{{ item.narrator }}</dd>
+          </div>
+          <div>
+            <dt>共创人</dt>
+            <dd>{{ item.co_creator }}</dd>
+          </div>
+          <div>
+            <dt>相关人物</dt>
+            <dd>{{ item.people }}</dd>
+          </div>
+          <div>
+            <dt>活动日期</dt>
+            <dd>{{ item.event_date }}</dd>
+          </div>
+        </dl>
+        <div class="tag-row">
+          {% for tag in item.tags %}
+          <span>{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </aside>
+    </section>
+
+    <section class="media-section">
+      <div class="section-heading">
+        <p class="eyebrow">Memory Media</p>
+        <h2>声音明信片与影像</h2>
+      </div>
+
+      <div class="media-grid">
+        {% if item.audio_url %}
+        <article class="media-block">
+          <h3>声音明信片</h3>
+          <p>保留讲述人的真实声音，让家人可以反复听见这段记忆。</p>
+          <audio controls preload="metadata">
+            <source src="{{ item.audio_url }}">
+            您的浏览器暂不支持音频播放。
+          </audio>
+        </article>
+        {% else %}
+        <article class="media-block is-pending">
+          <h3>声音明信片</h3>
+          <p>第二节课录制后，将在同一个二维码页面中补充 30-60 秒真实声音。</p>
+        </article>
+        {% endif %}
+
+        {% if item.video_url %}
+        <article class="media-block">
+          <h3>AI记忆影像</h3>
+          <video controls preload="metadata" poster="{{ item.video_poster_url }}">
+            <source src="{{ item.video_url }}">
+            您的浏览器暂不支持视频播放。
+          </video>
+          <p class="small-note">本影像包含 AI 辅助创作内容，已根据授权展示。</p>
+        </article>
+        {% else %}
+        <article class="media-block is-pending">
+          <h3>AI记忆影像</h3>
+          <img src="{{ item.video_poster_url }}" alt="AI记忆影像示意图">
+          <p>该成果为可选升级项，仅在素材质量、时间和授权条件允许时制作。</p>
+        </article>
+        {% endif %}
+      </div>
+    </section>
+
+    <section id="qr" class="qr-layout">
+      <div>
+        <p class="eyebrow">QR Label</p>
+        <h2>保存这段记忆</h2>
+        <p>这个二维码指向本家庭的固定页面。第一节课后显示文字与图片，第二节课后继续补充声音与影像。</p>
+        <div class="action-row">
+          <a class="button primary" href="{{ item.card_url }}">打开故事卡</a>
+          <a class="button secondary" href="{{ base_url }}/">返回记忆馆</a>
+        </div>
+      </div>
+      <figure class="qr-box">
+        <img src="{{ item.qr_url }}" alt="{{ item.title }}二维码">
+        <figcaption>{{ item.page_url }}</figcaption>
+      </figure>
+    </section>
+
+    <section class="notice-band">
+      <p>{{ item.ai_note }}</p>
+      <p>展示范围：{{ item.visibility_label }}</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <strong>{{ site_name }} · {{ item.id }}</strong>
+    <span>让记忆被看见，让故事被传承</span>
+  </footer>
+</body>
+</html>

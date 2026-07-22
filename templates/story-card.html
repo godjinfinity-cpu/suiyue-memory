@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ item.title }}｜故事卡</title>
+  <link rel="stylesheet" href="{{ static_url }}">
+</head>
+<body class="print-page">
+  <main class="print-shell">
+    <article class="print-card">
+      <header>
+        <p>{{ site_name }} · 家庭数字记忆档案</p>
+        <h1>{{ item.title }}</h1>
+      </header>
+
+      <div class="print-main">
+        <img src="{{ item.photo_url }}" alt="{{ item.object_name }}">
+        <div>
+          <dl>
+            <div>
+              <dt>物件</dt>
+              <dd>{{ item.object_name }}</dd>
+            </div>
+            <div>
+              <dt>年代</dt>
+              <dd>{{ item.year }}</dd>
+            </div>
+            <div>
+              <dt>地点</dt>
+              <dd>{{ item.place }}</dd>
+            </div>
+          </dl>
+          <p>{{ item.story }}</p>
+        </div>
+      </div>
+
+      <blockquote>{{ item.quote }}</blockquote>
+
+      <footer>
+        <div>
+          <span>讲述人：{{ item.narrator }}</span>
+          <span>共创人：{{ item.co_creator }}</span>
+          <span>展示范围：{{ item.visibility_label }}</span>
+        </div>
+        <img src="{{ item.qr_url }}" alt="{{ item.title }}二维码">
+      </footer>
+    </article>
+  </main>
+</body>
+</html>

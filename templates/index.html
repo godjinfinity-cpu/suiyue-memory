@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site_name }}｜社区数字记忆馆</title>
+  <meta name="description" content="一户一页，一物一码，用照片、故事、声音和AI辅助影像保存家庭记忆。">
+  <link rel="stylesheet" href="{{ static_url }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand-mark" href="{{ base_url }}/" aria-label="{{ site_name }}首页">
+      <span class="brand-icon">岁</span>
+      <span>
+        <strong>{{ site_name }}</strong>
+        <small>社区数字记忆馆</small>
+      </span>
+    </a>
+    <nav class="top-nav" aria-label="主导航">
+      <a href="#archive">记忆档案</a>
+      <a href="#process">课程闭环</a>
+      <a href="#deliverables">成果包</a>
+      <a href="#privacy">展示授权</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero home-hero" style="--hero-image: url('{{ hero_image }}');">
+      <div class="hero-content">
+        <p class="eyebrow">一户一页 · 一物一码</p>
+        <h1>岁月留痕 · 数字记忆馆</h1>
+        <p class="hero-copy">把长者的真实讲述，整理成可阅读、可聆听、可扫码保存的家庭数字记忆档案。</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#archive">查看示范档案</a>
+          <a class="button secondary" href="{{ base_url }}/cards/f001.html">预览故事卡</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-band" aria-label="项目数据">
+      <div>
+        <strong>{{ records|length }}</strong>
+        <span>示范档案</span>
+      </div>
+      <div>
+        <strong>{{ story_count }}</strong>
+        <span>老物件故事</span>
+      </div>
+      <div>
+        <strong>{{ audio_count }}</strong>
+        <span>声音明信片</span>
+      </div>
+      <div>
+        <strong>{{ video_count }}</strong>
+        <span>AI记忆影像</span>
+      </div>
+    </section>
+
+    <section id="archive" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Memory Archive</p>
+        <h2>记忆档案精选</h2>
+        <p>这里先放入演示数据。正式活动后，每组家庭会拥有一个固定页面和一个长期有效的二维码。</p>
+      </div>
+
+      <div class="archive-tools" aria-label="档案筛选">
+        <input id="archive-search" type="search" placeholder="搜索物件、人物、关键词" aria-label="搜索记忆档案">
+        <div class="filter-buttons" role="group" aria-label="按展示范围筛选">
+          <button class="filter-button is-active" type="button" data-filter="all">全部</button>
+          <button class="filter-button" type="button" data-filter="community">社区展示</button>
+          <button class="filter-button" type="button" data-filter="public">公开展示</button>
+        </div>
+      </div>
+
+      <div class="archive-grid" id="archive-grid">
+        {% for item in records %}
+        <article class="archive-card" data-visibility="{{ item.visibility }}" data-search="{{ item.search_text }}">
+          <a class="archive-image" href="{{ item.page_url }}">
+            <img src="{{ item.photo_url }}" alt="{{ item.object_name }}">
+          </a>
+          <div class="archive-body">
+            <div class="meta-row">
+              <span>{{ item.year }}</span>
+              <span>{{ item.visibility_label }}</span>
+            </div>
+            <h3><a href="{{ item.page_url }}">{{ item.title }}</a></h3>
+            <p>{{ item.summary }}</p>
+            <div class="tag-row">
+              {% for tag in item.tags %}
+              <span>{{ tag }}</span>
+              {% endfor %}
+            </div>
+            <a class="text-link" href="{{ item.page_url }}">进入档案</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section id="process" class="section process-section">
+      <div class="section-heading">
+        <p class="eyebrow">Two-Lesson Flow</p>
+        <h2>两节课完成一个闭环</h2>
+        <p>第一节采集和核验，第二节补充声音和影像，始终围绕同一份家庭档案持续完善。</p>
+      </div>
+
+      <div class="process-grid">
+        <article>
+          <span>01</span>
+          <h3>采集事实</h3>
+          <p>围绕物件、年代、人物、地点和情感提问，保留原始录音与手写卡。</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>AI整理</h3>
+          <p>把口述素材整理成标题、正文、金句和待确认信息。</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>人工核验</h3>
+          <p>由长者和家庭成员确认事实，删除 AI 编造或不准确内容。</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>扫码保存</h3>
+          <p>二维码固定不变，页面内容可从 V1 持续更新到 V2。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="image-feature">
+      <img src="{{ exhibition_image }}" alt="社区数字记忆展陈示意图">
+      <div>
+        <p class="eyebrow">Community Exhibition</p>
+        <h2>从家庭故事走向社区展陈</h2>
+        <p>每个家庭页面都可以生成对应展签。现场展墙展示简短故事，居民扫码后可以听见完整声音、查看照片和后续补充的 AI 影像成果。</p>
+      </div>
+    </section>
+
+    <section id="deliverables" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Deliverables</p>
+        <h2>家庭数字记忆档案包</h2>
+      </div>
+      <div class="deliverable-grid">
+        <article>
+          <img src="{{ story_card_image }}" alt="正式故事卡示意图">
+          <h3>正式故事卡</h3>
+          <p>A5或A4排版，可打印、可留存，记录照片、正文、金句和共创成员。</p>
+        </article>
+        <article>
+          <img src="{{ label_card_image }}" alt="二维码数字展签示意图">
+          <h3>二维码展签</h3>
+          <p>一户一页，一物一码，同一个二维码可持续打开最新版页面。</p>
+        </article>
+        <article>
+          <img src="{{ video_card_image }}" alt="声音明信片和AI影像示意图">
+          <h3>声音与影像</h3>
+          <p>声音明信片为全员基础成果，AI记忆影像作为授权后的升级成果。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="privacy" class="privacy-band">
+      <div>
+        <p class="eyebrow">Consent First</p>
+        <h2>展示前先确认授权</h2>
+        <p>公开页面不放手机号、住址、身份证号和未经授权的肖像。标记为“仅家庭查看”的内容，不应上传到公开静态网站。</p>
+      </div>
+      <a class="button secondary" href="{{ base_url }}/cards/f001.html">查看打印卡示范</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <strong>{{ site_name }} · 社区数字记忆馆</strong>
+    <span>留住记忆，连接温度，传承未来</span>
+  </footer>
+
+  <script src="{{ script_url }}"></script>
+</body>
+</html>
