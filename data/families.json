@@ -1,5 +1,57 @@
 [
   {
+    "id": "DEMO01",
+    "slug": "demo-shanghai-watch",
+    "title": "一只上海手表的记忆",
+    "object_name": "上海牌手表",
+    "year": "1950年代",
+    "place": "上海南京东路",
+    "people": "张阿姨、小雨",
+    "narrator": "张阿姨",
+    "co_creator": "小雨",
+    "story": "这只上海牌手表，是我年轻时在南京东路买下来的。那时候工资不高，我攒了好久才舍得把它带回家。它陪我上班、结婚、生子，也陪着一家人度过了许多平常却珍贵的日子。现在它已经不再走了，但每次拿起来，我还是会想起那个认真生活、一步一步把日子过好的年代。",
+    "quote": "它记录的不只是时间，也是我们一家人的日子。",
+    "photo": "media/families/F001/photo.jpg",
+    "audio": "",
+    "video": "",
+    "video_poster": "media/assets/video-card.jpg",
+    "visibility": "community",
+    "status": "示范档案",
+    "tags": [
+      "老物件",
+      "手表",
+      "家庭记忆"
+    ],
+    "ai_note": "本示范故事由参与者口述，项目团队使用 AI 辅助整理，经本人确认。",
+    "event_date": "2026-07-21"
+  },
+  {
+    "id": "DEMO02",
+    "slug": "demo-old-radio",
+    "title": "父亲的老收音机",
+    "object_name": "红灯牌收音机",
+    "year": "20世纪80年代",
+    "place": "家中客厅",
+    "people": "李叔叔、乐乐",
+    "narrator": "李叔叔",
+    "co_creator": "乐乐",
+    "story": "这台收音机是父亲当年省下一个月工资买回来的。每天傍晚，家里人都会围坐在一起，听新闻、听评书、听音乐。它的声音有时并不清楚，却把一家人聚在了一张桌旁。后来电视和手机慢慢多了，这台收音机被收进柜子，但它留下的热闹和陪伴，一直没有被忘记。",
+    "quote": "那时一台收音机响起来，整个家就热闹了。",
+    "photo": "media/families/F002/photo.jpg",
+    "audio": "",
+    "video": "",
+    "video_poster": "media/assets/video-card.jpg",
+    "visibility": "community",
+    "status": "示范档案",
+    "tags": [
+      "老物件",
+      "收音机",
+      "声音记忆"
+    ],
+    "ai_note": "本示范故事由参与者口述，项目团队使用 AI 辅助整理，经本人确认。",
+    "event_date": "2026-07-21"
+  },
+  {
     "id": "F001",
     "slug": "f001-jia",
     "title": "甲家庭的记忆",
