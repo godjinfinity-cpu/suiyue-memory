@@ -2,6 +2,7 @@
   {
     "id": "DEMO01",
     "slug": "demo-shanghai-watch",
+    "show_on_home": true,
     "title": "一只上海手表的记忆",
     "object_name": "上海牌手表",
     "year": "1950年代",
@@ -28,6 +29,7 @@
   {
     "id": "DEMO02",
     "slug": "demo-old-radio",
+    "show_on_home": true,
     "title": "父亲的老收音机",
     "object_name": "红灯牌收音机",
     "year": "20世纪80年代",
@@ -49,6 +51,33 @@
       "声音记忆"
     ],
     "ai_note": "本示范故事由参与者口述，项目团队使用 AI 辅助整理，经本人确认。",
+    "event_date": "2026-07-21"
+  },
+  {
+    "id": "DEMO03",
+    "slug": "demo-community-exhibition",
+    "show_on_home": true,
+    "title": "一面展墙里的社区记忆",
+    "object_name": "社区记忆展览",
+    "year": "2026年",
+    "place": "社区活动中心",
+    "people": "实践团队、社区家庭",
+    "narrator": "社区家庭代表",
+    "co_creator": "实践团队",
+    "story": "一张照片、一件物品、一段声音，都可以成为家庭记忆的入口。社区展墙把这些分散的故事放在一起，让长者的经历被更多人看见，也让孩子知道自己身边的人曾经怎样生活、怎样工作、怎样把一个家慢慢撑起来。每一个二维码背后，都是一家家庭愿意留下来的真实片段。",
+    "quote": "我们的记忆放在一起，就是社区自己的历史。",
+    "photo": "media/assets/exhibition.jpg",
+    "audio": "",
+    "video": "",
+    "video_poster": "media/assets/video-card.jpg",
+    "visibility": "public",
+    "status": "示范档案",
+    "tags": [
+      "社区展陈",
+      "二维码",
+      "共创"
+    ],
+    "ai_note": "本示范页用于展示数字记忆档案的页面结构，正式上线前需替换为已授权真实素材。",
     "event_date": "2026-07-21"
   },
   {
@@ -552,4 +581,3 @@
     "event_date": "2026-07-23"
   }
 ]
-

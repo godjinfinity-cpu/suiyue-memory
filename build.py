@@ -149,6 +149,9 @@ def validate_records(records: list[dict[str, Any]]) -> None:
             allowed = ", ".join(VISIBILITY_LABELS)
             raise ValueError(f"记录 {record_id} 的 visibility 必须是：{allowed}")
 
+        if "show_on_home" in record and not isinstance(record["show_on_home"], bool):
+            raise ValueError(f"记录 {record_id} 的 show_on_home 必须是 true 或 false")
+
         story_length = len(str(record["story"]).strip())
         if story_length < 80 or story_length > 320:
             raise ValueError(f"记录 {record_id} 的故事正文建议控制在 80-320 字，目前为 {story_length} 字。")
@@ -193,6 +196,7 @@ def prepare_record(record: dict[str, Any]) -> dict[str, Any]:
         "download_png_url": make_url(download_png_path),
         "download_pdf_url": make_url(download_pdf_path),
         "a4_sheet_url": "",
+        "show_on_home": record.get("show_on_home", False),
         "photo_url": make_url(record.get("photo")),
         "audio_url": make_url(record.get("audio")),
         "video_url": make_url(record.get("video")),
@@ -443,16 +447,23 @@ def build_printable_exports(records: list[dict[str, Any]]) -> None:
         card.save(pdf_path, "PDF", resolution=CARD_DPI, quality=92)
         generated_cards.append((item, card))
 
-    for sheet_number, start_index in enumerate(range(0, len(generated_cards), 4), start=1):
-        group = generated_cards[start_index : start_index + 4]
-        sheet = build_a4_sheet([card for _, card in group])
-        relative_path = f"{EXPORT_SHEET_DIR}/sheet-{sheet_number:02d}.pdf"
-        sheet_path = OUTPUT_DIR / relative_path
-        sheet_path.parent.mkdir(parents=True, exist_ok=True)
-        sheet.save(sheet_path, "PDF", resolution=CARD_DPI, quality=92)
-        sheet_url = make_url(relative_path)
-        for item, _ in group:
-            item["a4_sheet_url"] = sheet_url
+    # Keep presentable sample sheets separate from hidden future family slots.
+    showcase_cards = [pair for pair in generated_cards if pair[0]["show_on_home"]]
+    reserved_cards = [pair for pair in generated_cards if not pair[0]["show_on_home"]]
+    sheet_number = 1
+
+    for card_set in (showcase_cards, reserved_cards):
+        for start_index in range(0, len(card_set), 4):
+            group = card_set[start_index : start_index + 4]
+            sheet = build_a4_sheet([card for _, card in group])
+            relative_path = f"{EXPORT_SHEET_DIR}/sheet-{sheet_number:02d}.pdf"
+            sheet_path = OUTPUT_DIR / relative_path
+            sheet_path.parent.mkdir(parents=True, exist_ok=True)
+            sheet.save(sheet_path, "PDF", resolution=CARD_DPI, quality=92)
+            sheet_url = make_url(relative_path)
+            for item, _ in group:
+                item["a4_sheet_url"] = sheet_url
+            sheet_number += 1
 
 
 def render_template(
@@ -471,6 +482,7 @@ def build_site() -> None:
     records = load_records()
     validate_records(records)
     prepared_records = [prepare_record(record) for record in records]
+    showcase_records = [item for item in prepared_records if item["show_on_home"]]
 
     reset_output_directory()
     copy_public_assets()
@@ -498,10 +510,10 @@ def build_site() -> None:
         OUTPUT_DIR / "index.html",
         {
             **shared_context,
-            "records": prepared_records,
-            "story_count": len(prepared_records),
-            "audio_count": sum(1 for item in prepared_records if item.get("audio_url")),
-            "video_count": sum(1 for item in prepared_records if item.get("video_url")),
+            "records": showcase_records,
+            "story_count": len(showcase_records),
+            "audio_count": sum(1 for item in showcase_records if item.get("audio_url")),
+            "video_count": sum(1 for item in showcase_records if item.get("video_url")),
             "hero_image": make_url("media/assets/hero-cover.png"),
             "exhibition_image": make_url("media/assets/exhibition.jpg"),
             "story_card_image": make_url("media/assets/story-card.jpg"),
