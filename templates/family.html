@@ -24,29 +24,35 @@
   </header>
 
   <main>
-    <section class="hero family-hero" style="--hero-image: url('{{ item.photo_url }}');">
-      <div class="hero-content">
-        <p class="eyebrow">{{ item.status }} · {{ item.visibility_label }}</p>
+    <section class="family-intro">
+      <div>
+        <p class="eyebrow">{{ item.id }} · {{ item.status }}</p>
         <h1>{{ item.title }}</h1>
-        <p class="hero-copy">{{ item.quote }}</p>
+        <p>{{ item.quote }}</p>
       </div>
     </section>
 
     <section class="story-layout">
       <article class="story-panel">
+        <figure class="story-visual">
+          <a href="{{ item.photo_url }}" target="_blank" rel="noopener"><img src="{{ item.photo_url }}" alt="{{ item.object_name }}记忆配图"></a>
+          <figcaption>{{ item.photo_note|default('AI辅助创作示意图，非当年实拍。') }}</figcaption>
+        </figure>
         <div class="meta-row">
           <span>{{ item.object_name }}</span>
           <span>{{ item.year }}</span>
           <span>{{ item.place }}</span>
         </div>
-        <h2>这件物品的故事</h2>
+        <h2>记忆里的故事</h2>
         <p class="story-text">{{ item.story }}</p>
-        <blockquote>{{ item.quote }}</blockquote>
+        {% if item.story_note %}<p class="small-note">{{ item.story_note }}</p>{% endif %}
+        <blockquote><small>{{ item.quote_label }}</small>{{ item.quote }}</blockquote>
       </article>
 
       <aside class="detail-panel" aria-label="档案信息">
         <h2>档案信息</h2>
         <dl>
+          <div><dt>档案编号</dt><dd>{{ item.id }}</dd></div>
           <div>
             <dt>讲述人</dt>
             <dd>{{ item.narrator }}</dd>
@@ -59,68 +65,76 @@
             <dt>相关人物</dt>
             <dd>{{ item.people }}</dd>
           </div>
-          <div>
+          {% if item.event_date %}<div>
             <dt>活动日期</dt>
             <dd>{{ item.event_date }}</dd>
-          </div>
+          </div>{% endif %}
         </dl>
         <div class="tag-row">
           {% for tag in item.tags %}
           <span>{{ tag }}</span>
           {% endfor %}
         </div>
+        <div class="detail-actions">
+          <a class="button primary" href="{{ item.card_url }}">故事卡与下载</a>
+          {% if item.video_url %}<a class="text-link" href="#media">观看记忆短片</a>{% endif %}
+        </div>
       </aside>
     </section>
 
+    {% if item.gallery %}
     <section class="media-section">
+      <div class="section-heading"><h2>更多记忆配图</h2></div>
+      <div class="gallery-grid">
+        {% for picture in item.gallery %}
+        <figure><a href="{{ picture.url }}" target="_blank" rel="noopener"><img src="{{ picture.url }}" alt="{{ picture.caption }}" loading="lazy"></a><figcaption>{{ picture.caption }}</figcaption></figure>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if item.audio_url or item.video_url %}
+    <section id="media" class="media-section">
       <div class="section-heading">
         <p class="eyebrow">Memory Media</p>
-        <h2>声音明信片与影像</h2>
+        <h2>{{ '声音明信片与影像' if item.audio_url and item.video_url else ('记忆短片' if item.video_url else '声音明信片') }}</h2>
       </div>
 
-      <div class="media-grid">
+      <div class="media-grid {{ 'single-media' if not (item.audio_url and item.video_url) else '' }}">
         {% if item.audio_url %}
         <article class="media-block">
           <h3>声音明信片</h3>
-          <p>保留讲述人的真实声音，让家人可以反复听见这段记忆。</p>
+          <p>{{ item.audio_note|default('本档案归集的故事音频。') }}</p>
           <audio controls preload="metadata">
             <source src="{{ item.audio_url }}">
             您的浏览器暂不支持音频播放。
           </audio>
         </article>
-        {% else %}
-        <article class="media-block is-pending">
-          <h3>声音明信片</h3>
-          <p>第二节课录制后，将在同一个二维码页面中补充 30-60 秒真实声音。</p>
-        </article>
         {% endif %}
 
         {% if item.video_url %}
         <article class="media-block">
-          <h3>AI记忆影像</h3>
-          <video controls preload="metadata" poster="{{ item.video_poster_url }}">
-            <source src="{{ item.video_url }}">
+          <h3>{{ item.title }}</h3>
+          <video controls playsinline preload="metadata" poster="{{ item.video_poster_url }}">
+            <source src="{{ item.video_url }}" type="video/mp4">
             您的浏览器暂不支持视频播放。
           </video>
-          <p class="small-note">本影像包含 AI 辅助创作内容，已根据授权展示。</p>
-        </article>
-        {% else %}
-        <article class="media-block is-pending">
-          <h3>AI记忆影像</h3>
-          <img src="{{ item.video_poster_url }}" alt="AI记忆影像示意图">
-          <p>该成果为可选升级项，仅在素材质量、时间和授权条件允许时制作。</p>
+          <p class="small-note">AI辅助创作短片，非历史实拍；如含配音，不代表讲述人原声。</p>
+          <a class="text-link media-download" href="{{ item.video_url }}" download>下载记忆短片</a>
         </article>
         {% endif %}
       </div>
     </section>
+    {% endif %}
 
     <section id="qr" class="qr-layout">
       <div>
         <p class="eyebrow">QR Label</p>
         <h2>保存这段记忆</h2>
-        <p>这个二维码指向本家庭的固定页面。第一节课后显示文字与图片，第二节课后继续补充声音与影像。</p>
+        <p>同一个家庭编号，同一份记忆。故事和配图可继续补充，原有二维码地址保持不变。</p>
         <div class="action-row">
           <a class="button primary" href="{{ item.card_url }}">打开故事卡</a>
+          <a class="button secondary" href="{{ item.qr_url }}" download="{{ item.id }}-二维码.png">下载二维码</a>
           <a class="button secondary" href="{{ base_url }}/">返回记忆馆</a>
         </div>
       </div>

@@ -9,6 +9,7 @@
 <body class="print-page">
   <main class="print-shell">
     <section class="card-tools" aria-label="故事卡下载">
+      <a class="text-link" href="{{ item.page_url }}">返回家庭档案</a>
       <a class="button primary" href="{{ item.download_png_url }}" download>下载图片</a>
       <a class="button secondary" href="{{ item.download_pdf_url }}" download>下载 A6 PDF</a>
       <a class="button secondary" href="{{ item.a4_sheet_url }}" download>下载所在 A4 拼版</a>
@@ -41,7 +42,7 @@
         </div>
       </div>
 
-      <blockquote>{{ item.quote }}</blockquote>
+      <blockquote><small>{{ item.quote_label }}</small>{{ item.quote }}</blockquote>
 
       <footer>
         <div>
@@ -52,6 +53,7 @@
         <img src="{{ item.qr_url }}" alt="{{ item.title }}二维码">
       </footer>
     </article>
+    <img class="print-only-card" src="{{ item.download_png_url }}" alt="{{ item.title }} A6打印故事卡">
   </main>
 </body>
 </html>

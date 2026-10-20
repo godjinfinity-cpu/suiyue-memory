@@ -89,14 +89,26 @@ def reset_output_directory() -> None:
     (OUTPUT_DIR / ".nojekyll").touch()
 
 
-def copy_public_assets() -> None:
+def media_paths(record: dict[str, Any]) -> list[str]:
+    paths = [record.get(field) for field in ("photo", "audio", "video", "video_poster")]
+    paths.extend(image["path"] for image in record.get("gallery", []))
+    return [path for path in paths if path]
+
+
+def copy_public_assets(records: list[dict[str, Any]]) -> None:
     if not STATIC_DIR.exists():
         raise FileNotFoundError(f"没有找到样式目录：{STATIC_DIR}")
     if not MEDIA_DIR.exists():
         raise FileNotFoundError(f"没有找到媒体目录：{MEDIA_DIR}")
 
     shutil.copytree(STATIC_DIR, OUTPUT_DIR / "static", dirs_exist_ok=True)
-    shutil.copytree(MEDIA_DIR, OUTPUT_DIR / "media", dirs_exist_ok=True)
+    shutil.copytree(MEDIA_DIR / "assets", OUTPUT_DIR / "media" / "assets", dirs_exist_ok=True)
+    # Only referenced media is published; working files and interview cards stay local.
+    for record in records:
+        for relative_path in media_paths(record):
+            destination = OUTPUT_DIR / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / relative_path, destination)
 
 
 def assert_media_exists(record_id: str, field: str, value: str | None) -> None:
@@ -104,7 +116,11 @@ def assert_media_exists(record_id: str, field: str, value: str | None) -> None:
         return
 
     media_path = ROOT / value
-    if not media_path.exists():
+    try:
+        media_path.resolve().relative_to(MEDIA_DIR.resolve())
+    except ValueError as exc:
+        raise ValueError(f"记录 {record_id} 的 {field} 必须位于 media 目录内。") from exc
+    if not media_path.is_file():
         raise FileNotFoundError(f"记录 {record_id} 的 {field} 文件不存在：{media_path}")
 
 
@@ -121,7 +137,6 @@ def validate_records(records: list[dict[str, Any]]) -> None:
         "quote",
         "photo",
         "visibility",
-        "event_date",
     ]
 
     ids: set[str] = set()
@@ -153,13 +168,15 @@ def validate_records(records: list[dict[str, Any]]) -> None:
             raise ValueError(f"记录 {record_id} 的 show_on_home 必须是 true 或 false")
 
         story_length = len(str(record["story"]).strip())
-        if story_length < 80 or story_length > 320:
-            raise ValueError(f"记录 {record_id} 的故事正文建议控制在 80-320 字，目前为 {story_length} 字。")
+        if story_length < 40 or story_length > 3000:
+            raise ValueError(f"记录 {record_id} 的故事正文需控制在 40-3000 字，目前为 {story_length} 字。")
 
         assert_media_exists(record_id, "photo", record.get("photo"))
         assert_media_exists(record_id, "audio", record.get("audio"))
         assert_media_exists(record_id, "video", record.get("video"))
         assert_media_exists(record_id, "video_poster", record.get("video_poster"))
+        for picture in record.get("gallery", []):
+            assert_media_exists(record_id, "gallery", picture.get("path"))
 
 
 def make_url(relative_path: str | None) -> str:
@@ -197,6 +214,9 @@ def prepare_record(record: dict[str, Any]) -> dict[str, Any]:
         "download_pdf_url": make_url(download_pdf_path),
         "a4_sheet_url": "",
         "show_on_home": record.get("show_on_home", False),
+        "is_demo": record.get("is_demo", record["id"].startswith("DEMO")),
+        "quote_label": record.get("quote_label", "记忆摘句"),
+        "gallery": [{**picture, "url": make_url(picture["path"])} for picture in record.get("gallery", [])],
         "photo_url": make_url(record.get("photo")),
         "audio_url": make_url(record.get("audio")),
         "video_url": make_url(record.get("video")),
@@ -372,7 +392,7 @@ def render_printable_card(item: dict[str, Any]) -> Image.Image:
     story_label_font = load_export_font(28, bold=True)
     story_font = load_export_font(34)
     draw.text((details_x, 520), "记忆片段", font=story_label_font, fill=accent)
-    story_lines = wrap_export_text(draw, item["story"], story_font, 760, max_lines=5)
+    story_lines = wrap_export_text(draw, item.get("card_story") or item["story"], story_font, 760, max_lines=5)
     draw_export_lines(
         draw,
         story_lines,
@@ -383,8 +403,8 @@ def render_printable_card(item: dict[str, Any]) -> Image.Image:
     )
 
     quote_font = load_export_font(36, bold=True)
-    quote_lines = wrap_export_text(draw, item["quote"], quote_font, 1460, max_lines=2)
-    draw.rounded_rectangle((74, 930, 1372, 1012), radius=15, fill="#f8eeee")
+    quote_lines = wrap_export_text(draw, item["quote"], quote_font, 1210, max_lines=2)
+    draw.rounded_rectangle((74, 930, 1372, 1040), radius=15, fill="#f8eeee")
     draw_export_lines(
         draw,
         quote_lines,
@@ -399,7 +419,7 @@ def render_printable_card(item: dict[str, Any]) -> Image.Image:
     draw.text((74, 1090), f"讲述人：{item['narrator']}", font=footer_font, fill=muted)
     draw.text((74, 1135), f"共创人：{item['co_creator']}", font=footer_font, fill=muted)
     draw.text((470, 1090), f"展示范围：{item['visibility_label']}", font=footer_font, fill=muted)
-    draw.text((470, 1135), "AI 辅助整理，经本人确认", font=footer_font, fill=muted)
+    draw.text((470, 1135), "教学示例" if item["is_demo"] else "AI 辅助整理与创作", font=footer_font, fill=muted)
 
     qr_size = 240
     qr = create_qr_image(item["page_url"], box_size=10).resize(
@@ -448,11 +468,12 @@ def build_printable_exports(records: list[dict[str, Any]]) -> None:
         generated_cards.append((item, card))
 
     # Keep presentable sample sheets separate from hidden future family slots.
-    showcase_cards = [pair for pair in generated_cards if pair[0]["show_on_home"]]
+    showcase_cards = [pair for pair in generated_cards if pair[0]["show_on_home"] and not pair[0]["is_demo"]]
+    demo_cards = [pair for pair in generated_cards if pair[0]["show_on_home"] and pair[0]["is_demo"]]
     reserved_cards = [pair for pair in generated_cards if not pair[0]["show_on_home"]]
     sheet_number = 1
 
-    for card_set in (showcase_cards, reserved_cards):
+    for card_set in (showcase_cards, demo_cards, reserved_cards):
         for start_index in range(0, len(card_set), 4):
             group = card_set[start_index : start_index + 4]
             sheet = build_a4_sheet([card for _, card in group])
@@ -475,17 +496,18 @@ def render_template(
     template = environment.get_template(template_name)
     rendered_html = template.render(**context)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(rendered_html, encoding="utf-8")
+    output_path.write_text("\n".join(line.rstrip() for line in rendered_html.splitlines()) + "\n", encoding="utf-8")
 
 
 def build_site() -> None:
     records = load_records()
     validate_records(records)
-    prepared_records = [prepare_record(record) for record in records]
-    showcase_records = [item for item in prepared_records if item["show_on_home"]]
+    prepared_records = [prepare_record(record) for record in records if record["visibility"] != "private"]
+    showcase_records = [item for item in prepared_records if item["show_on_home"] and not item["is_demo"]]
+    demo_records = [item for item in prepared_records if item["show_on_home"] and item["is_demo"]]
 
     reset_output_directory()
-    copy_public_assets()
+    copy_public_assets(prepared_records)
 
     environment = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
@@ -511,9 +533,11 @@ def build_site() -> None:
         {
             **shared_context,
             "records": showcase_records,
+            "demo_records": demo_records,
             "story_count": len(showcase_records),
             "audio_count": sum(1 for item in showcase_records if item.get("audio_url")),
             "video_count": sum(1 for item in showcase_records if item.get("video_url")),
+            "image_count": sum(1 + len(item["gallery"]) for item in showcase_records),
             "hero_image": make_url("media/assets/hero-cover.png"),
             "exhibition_image": make_url("media/assets/exhibition.jpg"),
             "story_card_image": make_url("media/assets/story-card.jpg"),
